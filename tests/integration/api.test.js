@@ -80,6 +80,24 @@ describe('API - exemple de test', () => {
     expect(res.body).to.have.property('error');
   });
 
+  it('refuse une adresse email vide lors de la connexion', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({ email: '', password: 'Password123!' });
+
+    expect(res.status).to.equal(401);
+    expect(res.body.error).to.equal('Email ou mot de passe incorrect');
+  });
+
+  it('accepte une adresse email sans tenir compte de la casse', async () => {
+    const res = await request(app)
+      .post('/api/login')
+      .send({ email: 'STUDENT@SHOPNOW.TEST', password: 'Password123!' });
+
+    expect(res.status).to.equal(200);
+    expect(res.body.user.email).to.equal('student@shopnow.test');
+  });
+
   it('refuse un champ obligatoire absent à l inscription', async () => {
     const res = await request(app)
       .post('/api/register')
@@ -87,6 +105,45 @@ describe('API - exemple de test', () => {
         firstName: 'Alice',
         lastName: 'Martin',
         password: 'Password123!'
+      });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.error).to.equal('Tous les champs sont obligatoires');
+  });
+
+  it('refuse une inscription sans prénom', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({
+        lastName: 'Martin',
+        email: `missing-first-name.${Date.now()}@shopnow.test`,
+        password: 'Password123!'
+      });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.error).to.equal('Tous les champs sont obligatoires');
+  });
+
+  it('refuse une inscription sans nom', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({
+        firstName: 'Alice',
+        email: `missing-last-name.${Date.now()}@shopnow.test`,
+        password: 'Password123!'
+      });
+
+    expect(res.status).to.equal(400);
+    expect(res.body.error).to.equal('Tous les champs sont obligatoires');
+  });
+
+  it('refuse une inscription sans mot de passe', async () => {
+    const res = await request(app)
+      .post('/api/register')
+      .send({
+        firstName: 'Alice',
+        lastName: 'Martin',
+        email: `missing-password.${Date.now()}@shopnow.test`
       });
 
     expect(res.status).to.equal(400);

@@ -20,6 +20,12 @@ pipeline {
 			}
 		}
 
+		stage('Tests E2E') {
+			steps {
+				sh 'npm run test:e2e'
+			}
+		}
+
 		stage('Couverture') {
 			steps {
 				sh 'npm run test:coverage'

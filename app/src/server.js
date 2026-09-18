@@ -1,7 +1,6 @@
 const express=require('express');
 const path=require('path');
 const app=express();
-const PORT=process.env.PORT||8080;
 app.use(express.json());
 app.use(express.static(path.join(__dirname,'..','public')));
 const products=[
@@ -18,5 +17,7 @@ app.get('/api/products/:id',(req,res)=>{const p=products.find(x=>x.id===Number(r
 app.post('/api/register',(req,res)=>{const {firstName,lastName,email,password}=req.body;if(!firstName||!lastName||!email||!password)return res.status(400).json({error:'Tous les champs sont obligatoires'});if(password.length<8)return res.status(400).json({error:'Le mot de passe doit contenir au moins 8 caractères'});if(users.some(u=>u.email.toLowerCase()===email.toLowerCase()))return res.status(409).json({error:'Un compte existe déjà avec cet email'});const u={id:users.length+1,firstName,lastName,email,password};users.push(u);res.status(201).json({message:'Compte créé avec succès',user:{id:u.id,firstName,lastName,email}})});
 app.post('/api/login',(req,res)=>{const {email,password}=req.body;const u=users.find(x=>x.email.toLowerCase()===String(email||'').toLowerCase()&&x.password===password);if(!u)return res.status(401).json({error:'Email ou mot de passe incorrect'});res.json({message:'Connexion réussie',user:{id:u.id,firstName:u.firstName,lastName:u.lastName,email:u.email}})});
 app.get('*',(req,res,next)=>{if(req.path.startsWith('/api/'))return next();res.sendFile(path.join(__dirname,'..','public','index.html'))});
-if(require.main===module)app.listen(PORT,()=>console.log(`ShopNow running on http://localhost:${PORT}`));
+/* istanbul ignore next */
+const startServer = (port) => app.listen(port);
 module.exports=app;
+module.exports.startServer=startServer;

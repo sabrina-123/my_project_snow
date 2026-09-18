@@ -8,7 +8,8 @@ RUN npm install --omit=dev
 
 COPY src ./src
 COPY public ./public
+COPY start.js ./start.js
 
 EXPOSE 8080
 
-CMD ["node", "src/server.js"]
+CMD ["node", "start.js"]

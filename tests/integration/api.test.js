@@ -3,8 +3,27 @@ const { expect } = require('chai');
 const app = require('../../app/src/server');
 
 describe('API - exemple de test', () => {
+  it('démarre et arrête le serveur sur un port disponible', async () => {
+    const server = app.startServer(0);
+
+    await new Promise((resolve) => server.once('listening', resolve));
+    expect(server.address().port).to.be.greaterThan(0);
+
+    await new Promise((resolve, reject) => {
+      server.close((error) => error ? reject(error) : resolve());
+    });
+    expect(server.listening).to.equal(false);
+  });
+
   it('GET / doit servir la page d accueil', async () => {
     const res = await request(app).get('/');
+
+    expect(res.status).to.equal(200);
+    expect(res.type).to.equal('text/html');
+  });
+
+  it('sert la page d accueil pour une route frontend inconnue', async () => {
+    const res = await request(app).get('/page-inconnue');
 
     expect(res.status).to.equal(200);
     expect(res.type).to.equal('text/html');

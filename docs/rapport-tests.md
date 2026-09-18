@@ -114,10 +114,10 @@ npm.cmd run test:coverage
 Résultat :
 
 ```text
-21 passing
-Statements : 93.33%
-Branches   : 91.66%
-Functions  : 90%
+23 passing
+Statements : 100%
+Branches   : 100%
+Functions  : 100%
 Lines      : 100%
 ```
 
@@ -139,20 +139,16 @@ npm.cmd test
 Résultat validé :
 
 ```text
-24 passing
+26 passing
 ```
 
 Cela comprend les tests unitaires, les tests d'intégration et les trois scénarios E2E.
 
-## 6. Analyse des lignes non couvertes
+## 6. Analyse des lignes couvertes
 
-Le rapport NYC signale les lignes `20-21` de `app/src/server.js`. Elles correspondent au démarrage direct de l'application :
+Après ajout du test de cycle de vie du serveur et du test de route frontend inconnue, aucune ligne ni branche du fichier `app/src/server.js` n'est signalée comme non couverte par NYC.
 
-```js
-if (require.main === module) app.listen(PORT, ...);
-```
-
-Les tests Supertest importent volontairement `app` au lieu de démarrer le processus principal. Cette partie est donc une branche d'exécution du serveur, et non une fonctionnalité HTTP non testée. Les routes et comportements applicatifs sont couverts par les tests d'intégration.
+Le démarrage de production est séparé dans `app/start.js`. Le serveur applicatif reçoit un port explicite, ce qui permet de tester son démarrage sur un port éphémère sans dépendre d'un port déjà utilisé.
 
 ## 7. Test de détection de régression
 
@@ -172,7 +168,7 @@ La valeur correcte `1299.99` a ensuite été restaurée. Après restauration :
 3 passing
 ```
 
-La suite complète est également repassée avec `24 passing`.
+La suite complète est également repassée avec `26 passing`.
 
 ## 8. Pipeline Jenkins
 

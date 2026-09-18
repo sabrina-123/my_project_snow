@@ -1,22 +1,21 @@
 pipeline {
 	agent any
 
-	options {
-		timestamps()
-		timeout(time: 15, unit: 'MINUTES')
-		disableConcurrentBuilds()
-	}
-
 	stages {
-		stage('Installer les dependances') {
+		stage('Installation') {
 			steps {
 				sh 'npm ci'
 			}
 		}
 
-		stage('Tests unitaires et integration') {
+		stage('Tests unitaires') {
 			steps {
 				sh 'npm run test:unit'
+			}
+		}
+
+		stage('Tests integration') {
+			steps {
 				sh 'npm run test:integration'
 			}
 		}
@@ -24,20 +23,16 @@ pipeline {
 		stage('Couverture') {
 			steps {
 				sh 'npm run test:coverage'
-			}
-			post {
-				always {
-					archiveArtifacts artifacts: 'coverage/lcov.info', allowEmptyArchive: true
-				}
+				archiveArtifacts artifacts: 'coverage/lcov.info', fingerprint: true
 			}
 		}
 
-		stage('Analyse SonarQube') {
+		stage('Scan SonarQube') {
 			steps {
 				script {
 					def scannerHome = tool 'SonarQube Scanner'
 					withSonarQubeEnv('SonarQube') {
-						sh "${scannerHome}/bin/sonar-scanner -Dsonar.nodejs.executable=/opt/node18/bin/node"
+							sh "${scannerHome}/bin/sonar-scanner -Dsonar.host.url=http://sonarqube:9000 -Dsonar.nodejs.executable=/opt/node18/bin/node"
 					}
 				}
 			}
@@ -45,14 +40,8 @@ pipeline {
 	}
 
 	post {
-		success {
-			echo 'Pipeline ShopNow termine avec succes.'
-		}
-		failure {
-			echo 'Le pipeline ShopNow a echoue. Consultez les logs de l etape en erreur.'
-		}
 		always {
-			cleanWs()
+			junit allowEmptyResults: true, testResults: 'test-results/**/*.xml'
 		}
 	}
 }
